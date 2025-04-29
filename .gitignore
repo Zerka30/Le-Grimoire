@@ -1,0 +1,7 @@
+.idea/
+
+.pnpm-store/
+node_modules/
+
+le-grimoire/.vitepress/dist/
+le-grimoire/.vitepress/cache/

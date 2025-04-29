@@ -1,0 +1,106 @@
+html,
+body {
+    overflow-x: hidden;
+    min-height: 100%;
+    height: 100%;
+}
+
+:root {
+    --vp-layout-max-width: 100%;
+}
+
+.content-container {
+    max-width: 100% !important;
+    display: flex;
+    gap: 32px;
+    width: 100%;
+}
+
+.main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.aside-content {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+/* min-width: 1440px same as original min-width: 960px */
+@media (min-width: 1440px) {
+    .VPSidebar {
+        padding-left: 32px !important;
+        width: var(--vp-sidebar-width) !important;
+    }
+
+    .VPContent.has-sidebar {
+        padding-left: var(--vp-sidebar-width) !important;
+        padding-right: 0 !important;
+    }
+}
+
+/* Add additional min-width: 1680px */
+@media (min-width: 1680px) {
+    .VPSidebar {
+        padding-left: calc((100% - (var(--vp-layout-max-width) - 64px)) / 2) !important;
+        width: calc((100% - (var(--vp-layout-max-width) - 64px)) / 2 + var(--vp-sidebar-width) - 32px) !important;
+    }
+
+    .VPContent.has-sidebar {
+        padding-left: calc((100vw - var(--vp-layout-max-width)) / 2 + var(--vp-sidebar-width)) !important;
+        padding-right: calc((100vw - var(--vp-layout-max-width)) / 2) !important;
+    }
+}
+
+.VPContent {
+    min-height: calc(100vh - var(--vp-nav-height));
+}
+
+.VPHomeHero .image-container img {
+    border-radius: 50%;
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border: 4px solid var(--vp-c-brand);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.VPFooter {
+    padding: 10px 0 !important;
+    font-size: 14px;
+    line-height: 1.2;
+    position: relative;
+    margin-top: auto;
+}
+
+.VPDoc:not(.has-sidebar) .container,
+.VPDoc .container,
+.VPDoc .content,
+.VPDoc.has-aside .content {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 24px !important;
+}
+
+@media (min-width: 960px) {
+    .VPDoc:not(.has-sidebar) .container {
+        max-width: 100% !important;
+    }
+}
+
+@media (min-width: 1280px) {
+    .VPDoc:not(.has-sidebar) .container {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 960px) {
+    .content-container {
+        flex-direction: column;
+    }
+
+    .aside-content {
+        width: 100%;
+        margin-top: 32px;
+    }
+}
