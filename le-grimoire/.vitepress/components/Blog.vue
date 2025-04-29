@@ -3,13 +3,13 @@
     <div v-if="posts.length > 0" class="blog-list">
       <div v-for="post in posts" :key="post.url" class="blog-item">
         <div class="blog-item-thumbnail">
-          <a :href="post.url">
-            <img :src="post.thumbnail || getDefaultThumbnail(post)" :alt="post.title" />
+          <a :href="withBase(post.url)">
+            <img :src="withBase(post.thumbnail || getDefaultThumbnail(post))" :alt="post.title" />
           </a>
         </div>
         <div class="blog-item-content">
           <h2 class="blog-item-title">
-            <a :href="post.url">{{ post.title }}</a>
+            <a :href="withBase(post.url)">{{ post.title }}</a>
           </h2>
           <div class="blog-item-meta">
             <span class="blog-item-date" v-if="post.date">{{ formatDate(post.date) }}</span>
@@ -30,7 +30,7 @@
                 {{ tag }}
               </span>
             </div>
-            <a :href="post.url" class="blog-item-read-more">Lire l'article →</a>
+            <a :href="withBase(post.url)" class="blog-item-read-more">Lire l'article →</a>
           </div>
         </div>
       </div>
@@ -43,6 +43,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { withBase } from 'vitepress'
 
 const posts = ref([])
 

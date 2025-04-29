@@ -1,7 +1,7 @@
 <template>
   <div class="profile-card" :style="{ width: width, maxWidth: width }">
     <div class="profile-image">
-      <img :src="avatar" alt="Photo de profil" />
+      <img :src="withBase(avatar)" alt="Photo de profil" />
     </div>
     
     <h2 class="profile-name">{{ name }}</h2>
@@ -34,6 +34,8 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
+
 defineProps({
   avatar: {
     type: String,

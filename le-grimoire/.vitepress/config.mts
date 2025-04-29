@@ -3,8 +3,10 @@ import { withMermaid } from "vitepress-plugin-mermaid";
 // Importez generateSidebar mais ne l'utilisez pas tout de suite
 // import { generateSidebar } from 'vitepress-sidebar';
 
+const base = process.env.BASE_PATH || '/'
+
 export default withMermaid(defineConfig({
-    base: '/',
+    base: base,
     srcDir: './site',
     title: "Grimoire d'un Ops",
     description: "Pratiques, astuces, rituels et incantations.",

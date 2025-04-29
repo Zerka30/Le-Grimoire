@@ -2,7 +2,7 @@
   <div class="project-card" :class="{ 'featured': featured }">
     <div class="project-card-header">
       <div class="project-card-thumbnail">
-        <img :src="thumbnail || getDefaultThumbnail()" :alt="title" />
+        <img :src="withBase(thumbnail || getDefaultThumbnail())" :alt="title" />
       </div>
       <div class="project-card-badges">
         <span v-if="featured" class="project-card-badge featured">Projet phare</span>
@@ -12,7 +12,7 @@
     
     <div class="project-card-content">
       <h3 class="project-card-title">
-        <a :href="url" v-if="url">{{ title }}</a>
+        <a :href="withBase(url)" v-if="url">{{ title }}</a>
         <span v-else>{{ title }}</span>
       </h3>
       
@@ -39,7 +39,7 @@
         <a v-if="docsUrl" :href="docsUrl" target="_blank" rel="noopener noreferrer" class="project-card-link docs">
           <span class="link-icon">📖</span> Docs
         </a>
-        <a v-if="url" :href="url" class="project-card-link details">
+        <a v-if="url" :href="withBase(url)" class="project-card-link details">
           <span class="link-icon">ℹ️</span> Détails
         </a>
       </div>
@@ -49,6 +49,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import { withBase } from 'vitepress';
 
 const props = defineProps({
   title: {
