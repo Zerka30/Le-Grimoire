@@ -27,7 +27,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           pnpm install --frozen-lockfile
-          pnpm run build
+          pnpm vitepress build le-grimoire --base "/"
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
