@@ -1,9 +1,21 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from "vitepress-plugin-mermaid";
-// Importez generateSidebar mais ne l'utilisez pas tout de suite
-// import { generateSidebar } from 'vitepress-sidebar';
+import { generateSidebar, VitePressSidebarOptions } from 'vitepress-sidebar';
 
 const base = process.env.BASE_PATH || '/'
+
+function sidebarFromPath(path: string): VitePressSidebarOptions {
+    return {
+        documentRootPath: './le-grimoire/site',
+        scanStartPath: path,
+        basePath: `/${path}/`,
+        resolvePath: `/${path}/`,
+        useTitleFromFileHeading: true,
+        useFolderTitleFromIndexFile: true,
+        collapsed: false,
+        collapseDepth: 2
+    }
+}
 
 export default withMermaid(defineConfig({
     base: base,
@@ -17,15 +29,9 @@ export default withMermaid(defineConfig({
             { text: 'Projets', link: '/projects/' },
             { text: 'Documentation', link: '/docs/' },
         ],
-        sidebar: {
-            // Utilisez une sidebar simple pour docs en attendant
-            '/docs/': [
-                {
-                    text: 'Documentation',
-                    items: []
-                }
-            ]
-        },
+        sidebar: generateSidebar([
+            sidebarFromPath('docs')
+        ]),
         search: {
             provider: 'local',
         },
