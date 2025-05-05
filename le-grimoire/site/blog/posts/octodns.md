@@ -13,6 +13,8 @@ layout: PostLayout
 
 # OctoDNS - How to manage DNS as code
 
+[[toc]]
+
 ## Introduction
 
 Dans le monde de l'informatique moderne, de plus en plus d'entreprise cherche à automatiser autant de tâches que possible. Cela permet de gagner du temps, de gagner en qualité, et d'éviter de nombreuses erreurs humaines. Ces automatisations passent par la mise en place de système « as Code ». 
@@ -20,10 +22,12 @@ Dans le monde de l'informatique moderne, de plus en plus d'entreprise cherche à
 C'est pourquoi, j'ai longtemps rêvé d'un système qui me permettrait de gérer mes zones DNS de cette manière. L'idée étant que quand je déploie un nouveau service, en quelques secondes, je puisse mettre à jour ma zones DNS pour que mon service soit accessible, sans devoir passer par les interfaces de mes fournisseurs qui sont toutes différentes, avec leurs spécificités propres.
 
 ### Qu'est ce que OctoDNS ?
+[**OctoDNS**](https://github.com/octodns/octodns) est un outil open source écrit en python et développé par [ross](https://github.com/ross) qui permet de gérer ces zones DNS as code. Cette solution offre une approche complètement différente en reposant sur trois principes clés :
+1. **Configuration déclarative** : Tous les enregistrements DNS sont définis dans des fichiers `.yml`
+2. **Source de vérité** : Les fichiers YAML deviennent la référence absolue de notre configuration
+3. **Abstraction des fournisseurs** : Une syntaxe unifiée indépendante des spécificités de chaque provider
 
-**OctoDNS**, c'est un outil open source écrit en python et développé par [ross](https://github.com/ross) qui permet de gérer ses zones DNS as code. Pour ce faire, il offre une apporche déclarative où tous les enregistrements DNS sont définis dans fichiers `.yml`, ainsi combiné à Git, on peut avoir un contrôle de version et mettre en place des automatisations.
-
-Ce dernier offre déjà de nombreux fournisseurs DNS tels que :
+L'outil prend déjà en charge de nombreux fournisseurs DNS tels que :
 - Amazon Route 53
 - Cloudflare
 - Google Cloud DNS
@@ -31,21 +35,46 @@ Ce dernier offre déjà de nombreux fournisseurs DNS tels que :
 - Infomaniak
 - Et bien d'autres...
 
-Toutefois, si votre provider n'est pas encore supporté, il vous sera très facile développer votre propre plugin pour l'intégrer. La modularité est l'un des atouts majeurs d'OctoDNS, et sa base en Python rend le développement d'extensions particulièrement accessible.
+Toutefois, si votre provider n'est pas encore supporté, il vous sera très facile développer votre propre plugin pour l'intégrer. La modularité est l'un des atouts majeurs de cet outil, et sa base en Python rend le développement d'extensions particulièrement accessible.
 
-De plus, **OctoDNS** intègre également des fonctionnalités de validation et de prévisualisation des changements avant leur application, réduisant ainsi les risques d'erreurs lors des modifications DNS.
+De plus, OctoDNS intègre également des fonctionnalités de validation et de prévisualisation des changements avant leur application, réduisant ainsi les risques d'erreurs lors des modifications DNS.
 
-## Installation
+## Comment ça marche ?
 
-Pour installer OctoDNS, rien de plus simple : 
-1. On crée un environnement virtuel Python :
+Dans le cadre de cet article, nous allons mettre en place une configuration de base, en utilisant un unique provider : Infomaniak. 
+
+Toutefois, la configuration utilisée ici est parfaitement compatible avec d'autres providers, et facilement adaptable pour la mise en place dans des environments plus complexes.
+
+La structure de notre projet sera la suivante :
+
 ```bash
-python3 -m venv octodns
+octodns/
+├── zones/
+│   ├── home.zerka.dev.yaml
+│   └── ...
+├── venv/
+│   └── ...
+├── octodns.yaml
+└── README.md
 ```
+
+Le point d'entrée de notre configuration sera le fichier `octodns.yaml` qui contiendra la configuration globale de notre infrastructure. Et les fichiers de configurations seront respectivement définis dans le répertoire `zones/`.
+
+### Installation
+
+Pour commencer, nous devons installer OctoDNS. La documentation officielle nous incite explicitement à utiliser un environnement virtuel Python.
+
+1. Donc, on crée un environnement virtuel Python :
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
 2. On active l'environnement virtuel : 
 ```bash
-source octodns/bin/activate
+source venv/bin/activate
 ```
+
 3. On installe OctoDNS : 
 ```bash
 pip install octodns
@@ -65,71 +94,103 @@ pip install octodns-infomaniak
 ```
 
 ::: info
-Initialement, j'étais a l'origine du plugin `octodns-infomaniak` mais par manque de temps, c'est [M0NsTeRRR](https://github.com/M0NsTeRRR) qui redévelopper le plugin depuis zéro.  
+Initialement, j'avais commencé à développer le plugin `octodns-infomaniak` mais par manque de temps, c'est [M0NsTeRRR](https://github.com/M0NsTeRRR) qui a redévelopper le plugin depuis zéro.  
 Merci à lui pour son travail !
 :::
 
 Vous êtes maintenant prêt à gérer vos zones DNS avec OctoDNS !
 
-## Configuration
+### Configuration
 
-Maintenant que notre installation est opérationnelle, nous devons réaliser une configuration de base pour que OctoDNS puisse fonctionner.
-Pour ce faire, nous devons crée un fichier de configuration qui sera le point d'entrée.
+Maintenant, que notre installation est terminée, nous pouvons commencer à mettre en place notre configuration. 
 
+Pour commencer, nous devons créer un fichier de configuration principal qui servira de point d'entrée pour toute notre configuration OctoDNS.
 ```bash
 touch octodns.yaml
 ```
 
-Ce fichier est composé de 2 grandes sections :
+Ce fichier est composé de 2 grandes sections qui sont obligatoires :
 - `providers` : Cette section permet de configurer les fournisseurs DNS que nous utilisons.
 - `zones` : Cette section permet de configurer les zones DNS que nous souhaitons gérer.
 
-### Providers
+#### Providers
 
 La section `providers` permet de définir les différents fournisseurs DNS que nous souhaitons utiliser. Nous pouvons configurer autant de providers que nécessaire, tout en veillant à ce que chaque identifiant soit unique.
 
-Dans mon cas avec Infomaniak, voici ce que cela donnerais : 
+Par exemple, pour mon cas avec Infomaniak, voici ce que cela donnerais :
 
 ```yaml
+---
 providers:
   infomaniak:
-    class: octodns.provider.infomaniak.InfomaniakProvider
+    class: octodns_infomaniak.InfomaniakProvider
     token: env/INFOMANIAK_TOKEN
 ```
 
 Dans cette configuration, nous définissons :
 - `infomaniak`: Correspondant à l'identifiant de notre provider.
 - `class`: La classe de notre provider, qui nous est fourni par la documentation de notre plugin.
-- `token`: Le token qui nous permettra d'accéder à l'API d'Infomaniak au travers d'une variable d'environnement nommée `INFOMANIAK_TOKEN`.
+- `token`: Le token qui nous permettra d'accéder à l'API d'Infomaniak au travers d'une variable d'environnement nommée INFOMANIAK_TOKEN.
 
 ::: tip
 Chaque provider définit ça propre structure de configuration. Il est donc nécessaire de se référer à la documentation de votre provider.
 :::
 
-Personellement, je sépare généralement mes fichiers de configuration en deux. Un fichier de configuration global, et un fichier de configuration pour chaque zone DNS que je souhaite gérer. Nous devons donc définir un deuxième provider qui nous permettra de lire ces fichiers de configuration.
+Dans la structure de notre projet, nous définissons un répertoire `zones` qui contient les fichiers de configuration pour chaque zone DNS que nous souhaitons gérer. Cela facilite la gestion des différentes zones DNS que nous souhaitons gérer, et améliore la lisibilité de notre configuration.
+
+Nous devons donc définir un provider local qui nous permettra de lire les fichiers de configuration dans le répertoire `./zones`. Ce provider, c'est le provider `yaml`. 
+
+On rajoute donc la configuration suivante dans notre fichier principal :
 
 ```yaml
+providers:
   config:
     class: octodns.provider.yaml.YamlProvider
-    directory: ./configs
+    directory: ./zones
 ```
 
-Ici, nous faisons donc référence a un provider "local" nommé `config` qui nous permettra de lire les fichiers de configuration dans le répertoire `./configs`.
+#### Zones
 
-### Zones
+La section `zones` dans notre fichier de configuration global permet de "mapper" les zones DNS avec les providers que nous avons défini dans la section `providers`.
 
-La section `zones` de notre fichier de configuration global permet de "mapper" les zones DNS avec les providers que nous avons défini dans la section `providers`.
-
+Voici un exemple de configuration intéressante :
 ```yaml
+---
+providers:
+  include: providers/infomaniak.yaml
+  config:
+    class: octodns.provider.yaml.YamlProvider
+    directory: ./zones
+
 zones:
-  'home.zerka.dev.':
+  "zerka.dev.": &zerka
     sources:
       - config
     targets:
       - infomaniak
+
+  "home.zerka.dev.": *zerka
+  "cloud.zerka.dev.": *zerka
+
+  "raphaelhien.fr.": &raphael
+    sources:
+      - config
+    targets:
+      - infomaniak
+
+  "raphaelhien.ch.":
+    alias: raphaelhien.fr.
 ```
 
-Dans cette section, nous définissons une zone DNS nommée `home.zerka.dev.` et nous lui assignons comme source le provider `config` et comme target le provider `infomaniak`. En d'autre termes, nous faisons référence au fichier de configuration dans le répertoire `./configs` pour la lecture et l'écriture sur le provider `infomaniak`.
+Intéressons nous dans un premier temps à la zone `zerka.dev.`. Ici, je décris la zone `zerka.dev.`, en lui assignant comme source le provider `config` et comme target le provider `infomaniak`. En d'autre termes, nous faisons référence au fichier de configuration dans le répertoire `./zones` pour la lecture et l'écriture sur le provider `infomaniak`.
+
+Ensuite, je décrit les zones `home.zerka.dev.` et `cloud.zerka.dev.` en utilisant l'alias `&zerka` défini précédemment, ce qui signifie que ces deux zones utiliseront la même configuration que la zone `zerka.dev.`.
+
+Et enfin, je décris une zone `raphaelhien.fr.` comme la zone `zerka.dev.` mais qui pourrait ici très bien utiliser un provider différent. Et je défini un alias `raphaelhien.ch.` se qui veut dire que toutes les entrées de la zone `raphaelhien.fr.` seront automatiquement appliquées à la zone `raphaelhien.ch.`.
+
+::: info
+Nous n'avons ici, pas encore défini les enregistrements DNS pour chaque zone. Nous avons uniquement défini les sources et les targets pour chacune de nos zones.
+:::
 
 ## Utilisation
 
@@ -138,7 +199,7 @@ Lorsque vous utilisez OctoDNS, il réalise un diff entre les enregistrements DNS
 Mais heureusement, OctoDNS nous permet de réaliser cette migration facilement avec la commande suivante qui va nous permettre de faire un dump intégral de notre zone DNS actuelle.
 
 ```bash
-(octodns) ➜ raphael@XPS-Raph:~ $ octodns-dump --config-file octodns.yaml --output-dir ./configs home.zerka.dev. infomaniak
+(octodns) ➜ raphael@XPS-Raph:~ $ octodns-dump --config-file octodns.yaml --output-dir ./zones home.zerka.dev. infomaniak
 ```
 
 ::: warning
@@ -231,3 +292,66 @@ Cette commande nous permet de voir les changements qui seront appliqués. Ici, o
 Si l'on regarde notre zone DNS, sur l'interface d'Infomaniak, on voit bien que l'enregistrement `CNAME` a été crée.
 
 ![Infomaniak](/images/blog/octodns/infomaniak_zone.png)
+
+### Automatisation
+
+Mais ce qui nous intéresse nous, c'est pas d'avoir a effectuer ces changements manuellement. Nous souhaitons que ces changements soit effectué automatiquement. Pour cela, nous allons mettre en place un pipeline CI/CD qui va nous permettre de détecter les changements sur nos services et de les appliquer automatiquement.
+
+On définit donc un pipeline Gitlab CI/CD qui va nous permettre de détecter les changements sur nos services et de les appliquer automatiquement.
+
+```yaml
+---
+stages:
+  - test
+  - deploy
+
+variables:
+  INFOMANIAK_TOKEN: ${INFOMANIAK_TOKEN}
+
+.rules:
+  - &rule-mr
+    if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    when: on_success
+  - &rule-branch
+    if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+test:
+  stage: test
+  image: python:3.9-slim
+  before_script:
+    - pip install octodns octodns-infomaniak
+  script:
+    - octodns-sync --config octodns.yaml
+  rules:
+    - *rule-mr
+    - *rule-branch
+
+deploy:
+  stage: deploy
+  image: python:3.9-slim
+  before_script:
+    - pip install octodns octodns-infomaniak
+  script:
+    - octodns-sync --config octodns.yaml --doit
+  rules:
+    - *rule-branch
+  when: on_success
+```
+
+Ce pipeline contient 2 jobs, dans un premier temps, le job `test` qui va nous permettre de valider notre configuration et de nous assurer que tout est bon. Et dans un second temps, le job `deploy` qui va nous permettre d'appliquer nos changements.
+
+Ces jobs sont conditionnés par 2 règles :
+- `rule-mr` : Cette règle va nous permettre de détecter les changements sur une merge request
+- `rule-branch` : Cette règle va nous permettre de détecter les changements sur la branche principale
+
+On a donc une solution très simple et efficace pour gérer nos zones DNS avec OctoDNS de manière automatisée.
+
+## Conclusion
+
+OctoDNS représente une véritable solution pour gérer ses zones DNS en adoptant une approche "as code". Il nous permet de :
+- **Centraliser** toutes nos configurations DNS dans un format unifié
+- **Automatiser** les déploiements via des pipelines CI/CD
+- **Sécuriser** nos modifications grâce aux validations et prévisualisations
+- **Standardiser** nos pratiques indépendamment des fournisseurs utilisés
+
+Dans un monde où l'infrastructure as code devient la norme, OctoDNS s'impose comme une solution incontournable pour les équipes DevOps en permettant d'intégrer la gestion DNS dans les workflows d'automatisation, réduisant ainsi les erreurs humaines tout en accélérant les déploiements conformément aux pratiques DevOps actuelles.
