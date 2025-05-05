@@ -1,16 +1,15 @@
 ---
 title: OctoDNS - How to manage DNS as code
 description: Découvrez comment gérer vos zones DNS comme du code avec OctoDNS, l'outil qui révolutionne la gestion DNS multi-fournisseurs. Un guide pratique pour automatiser et sécuriser votre infrastructure DNS.
-thumbnail: https://github.blog/wp-content/uploads/2017/04/octodns-logo.png?resize=650%2C256
+thumbnail: /images/blog/octodns/cover.png
 author: Raphaël Hien
 date: 2025-04-29
 tags: ['dns', 'as-code']
 isPublished: false
 
 outline: deep
+layout: PostLayout
 ---
-
-![Infomaniak](/images/blog/octodns/cover.webp)
 
 # OctoDNS - How to manage DNS as code
 
@@ -232,4 +231,3 @@ Cette commande nous permet de voir les changements qui seront appliqués. Ici, o
 Si l'on regarde notre zone DNS, sur l'interface d'Infomaniak, on voit bien que l'enregistrement `CNAME` a été crée.
 
 ![Infomaniak](/images/blog/octodns/infomaniak_zone.png)
-

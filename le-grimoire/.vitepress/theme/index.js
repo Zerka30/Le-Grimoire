@@ -6,8 +6,10 @@ import Blog from '../components/Blog.vue'
 import ProfileCard from '../components/ProfileCard.vue'
 import BlogLayout from '../components/layouts/BlogLayout.vue'
 import ProjectLayout from '../components/layouts/ProjectLayout.vue'
+import PostLayout from '../components/layouts/PostLayout.vue'
 import Projects from '../components/Projects.vue'
 import ProjectCard from '../components/ProjectCard.vue'
+import Post from '../components/Post.vue'
 
 
 /** @type {import('vitepress').Theme} */
@@ -20,5 +22,7 @@ export default {
         app.component('ProjectLayout', ProjectLayout)
         app.component('Projects', Projects)
         app.component('ProjectCard', ProjectCard)
+        app.component('Post', Post)
+        app.component('PostLayout', PostLayout)
     }
 }
