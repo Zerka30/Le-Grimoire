@@ -1,37 +1,39 @@
 <template>
   <div class="post-layout">
-    <!-- Bannière avec image de couverture -->
-    <div class="post-banner" v-if="frontmatter.thumbnail">
-      <img :src="withBase(frontmatter.thumbnail)" :alt="frontmatter.title" class="post-thumbnail" />
-    </div>
-    
-    <!-- En-tête de l'article -->
-    <div class="post-header">
-      <div class="post-meta">
-        <span class="post-date" v-if="frontmatter.date">{{ formatDate(frontmatter.date) }}</span>
-        <span class="post-author" v-if="frontmatter.author">
-          <span class="post-meta-separator">•</span>
-          <span class="post-author-name">{{ frontmatter.author }}</span>
-        </span>
+    <div class="post-container">
+      <!-- Bannière avec image de couverture -->
+      <div class="post-banner" v-if="frontmatter.thumbnail">
+        <img :src="withBase(frontmatter.thumbnail)" :alt="frontmatter.title" class="post-thumbnail" />
       </div>
       
-      <div class="post-tags" v-if="frontmatter.tags && frontmatter.tags.length > 0">
-        <span 
-          v-for="tag in frontmatter.tags" 
-          :key="tag" 
-          class="post-tag"
-          :style="{ backgroundColor: getTagColor(tag) }"
-        >
-          {{ tag }}
-        </span>
+      <!-- En-tête de l'article -->
+      <div class="post-header">
+        <div class="post-meta">
+          <span class="post-date" v-if="frontmatter.date">{{ formatDate(frontmatter.date) }}</span>
+          <span class="post-author" v-if="frontmatter.author">
+            <span class="post-meta-separator">•</span>
+            <span class="post-author-name">{{ frontmatter.author }}</span>
+          </span>
+        </div>
+        
+        <div class="post-tags" v-if="frontmatter.tags && frontmatter.tags.length > 0">
+          <span 
+            v-for="tag in frontmatter.tags" 
+            :key="tag" 
+            class="post-tag"
+            :style="{ backgroundColor: getTagColor(tag) }"
+          >
+            {{ tag }}
+          </span>
+        </div>
+        
+        <p class="post-description" v-if="frontmatter.description">{{ frontmatter.description }}</p>
       </div>
       
-      <p class="post-description" v-if="frontmatter.description">{{ frontmatter.description }}</p>
-    </div>
-    
-    <!-- Contenu de l'article -->
-    <div class="post-content">
-      <Content />
+      <!-- Contenu de l'article -->
+      <div class="post-content vp-doc">
+        <Content />
+      </div>
     </div>
   </div>
 </template>
@@ -83,24 +85,44 @@ function getTagColor(tag) {
 <style>
 .post-layout {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.post-container {
+  width: 100%;
   max-width: 860px;
-  margin: 0 auto;
   padding: 0 20px;
+}
+
+/* Ajoutons des règles pour les écrans plus larges */
+@media (min-width: 1200px) {
+  .post-container {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .post-container {
+    max-width: 1200px;
+  }
 }
 
 .post-banner {
   width: 100%;
-  height: 400px;
-  overflow: hidden;
   margin: 2rem 0;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  text-align: center; /* Centre l'image si elle est plus petite que le conteneur */
 }
 
 .post-thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  height: auto;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .post-header {
@@ -149,9 +171,10 @@ function getTagColor(tag) {
   font-size: 1.1rem;
   line-height: 1.7;
   color: var(--vp-c-text-1);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
-/* Styles pour les éléments de contenu */
 .post-content h1 {
   font-size: 2.5rem;
   margin-top: 0;
@@ -207,11 +230,19 @@ function getTagColor(tag) {
 }
 
 .post-content pre {
+  position: relative;
   background-color: var(--vp-c-bg-soft);
   padding: 1rem;
   border-radius: 8px;
   overflow-x: auto;
   margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+.post-content pre code {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
 }
 
 .post-content a {
@@ -223,6 +254,11 @@ function getTagColor(tag) {
 
 .post-content a:hover {
   border-bottom: 1px solid var(--vp-c-brand);
+}
+
+/* S'assurer que les boutons de copie de VitePress sont visibles */
+.post-content div[class*="language-"] {
+  position: relative;
 }
 
 /* Responsive */
