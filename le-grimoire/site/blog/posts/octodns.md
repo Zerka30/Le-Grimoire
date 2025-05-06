@@ -5,7 +5,7 @@ thumbnail: /images/blog/octodns/cover.png
 author: Raphaël Hien
 date: 2025-04-29
 tags: ['dns', 'as-code']
-isPublished: false
+isPublished: true
 
 outline: deep
 layout: PostLayout
